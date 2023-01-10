@@ -55,6 +55,17 @@ vim.cmd [[colorscheme onedark]]
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
+-- Highlight cursor line
+vim.o.cursorline = true
+
+-- Indent
+vim.o.tabstop = 4
+vim.o.softtabstop = 0
+vim.o.shiftwidth = 4
+vim.o.smarttab = true
+vim.o.smartcase = true
+vim.o.smartindent = true
+
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
