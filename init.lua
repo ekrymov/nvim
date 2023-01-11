@@ -62,7 +62,6 @@ vim.o.tabstop = 4
 vim.o.softtabstop = 0
 vim.o.shiftwidth = 4
 vim.o.smarttab = true
-vim.o.smartcase = true
 vim.o.smartindent = true
 
 
