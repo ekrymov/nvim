@@ -15,9 +15,9 @@ return {
   },
 
   -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
-  'lewis6991/gitsigns.nvim',
+  --'tpope/vim-fugitive',
+  --'tpope/vim-rhubarb',
+  --'lewis6991/gitsigns.nvim',
 
   'navarasu/onedark.nvim', -- Theme inspired by Atom
   'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
