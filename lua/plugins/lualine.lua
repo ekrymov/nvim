@@ -1,6 +1,6 @@
 return {
   'nvim-lualine/lualine.nvim', -- Fancier statusline
-  dependencies = { 'kyazdani42/nvim-web-devicons', opt = true },
+  dependencies = { 'nvim-tree/nvim-web-devicons', opt = true },
   config = function() 
     -- Set lualine as statusline
     -- See `:help lualine.txt`
