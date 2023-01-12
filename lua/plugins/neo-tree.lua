@@ -7,12 +7,22 @@ return {
   },
   dependencies = {
     'nvim-lua/plenary.nvim',
+    'nvim-tree/nvim-web-devicons',
     'MunifTanjim/nui.nvim',
   },
-  config = {
-    filesystem = {
-      follow_current_file = true,
-      hijack_netrw_behavior = 'open_current',
-    },
-  },
+  config = function()
+    require('neo-tree').setup {
+      window = {
+        width = 25,
+      },
+      filesystem = {
+        filtered_items = {
+          hide_dotfiles = false,
+          hide_gitignored = false,
+        },
+        follow_current_file = true,
+        hijack_netrw_behavior = 'open_current',
+      },
+    }
+  end
 }
