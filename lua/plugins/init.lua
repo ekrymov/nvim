@@ -11,5 +11,13 @@ return {
     end
   },
   
+  { -- Highlight TODO, FIX, BUG etc.
+    'folke/todo-comments.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('todo-comments').setup()
+    end
+  },
+  
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 }
