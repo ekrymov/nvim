@@ -22,6 +22,7 @@ return {
   -- Neogit
   { 'TimUntersberger/neogit',
     dependencies = { 'nvim-lua/plenary.nvim' },
+    enabled = false,
     config = function()
       require('neogit').setup()
     end
