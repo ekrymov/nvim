@@ -73,6 +73,12 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+-- <F5> различные вариации нумераций строк
+vim.keymap.set('n', '<F5>', ':exec &nu==&rnu? "se nu!" : "se rnu!"<CR>', { noremap = true, silent = true })
+
+-- Back to normal mode from <jk>
+vim.keymap.set('i', 'jk', '<Esc>', { noremap = true })
+
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
