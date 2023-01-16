@@ -64,6 +64,9 @@ vim.o.shiftwidth = 4
 vim.o.smarttab = true
 vim.o.smartindent = true
 
+-- Disable providers
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
