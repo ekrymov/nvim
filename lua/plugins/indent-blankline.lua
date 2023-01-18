@@ -4,12 +4,18 @@
 -- See `:help indent_blankline.txt`
 return {
   'lukas-reineke/indent-blankline.nvim',
+  event = 'BufReadPre',
   config = function()
     vim.o.termguicolors = true
     vim.cmd [[highlight CurrentContext guifg=#6E6E6E gui=nocombine]]
     require('indent_blankline').setup {
       enabled = true,                                -- on/off plugin
-      filetype = {},                                 -- выключать подсветку для указанных типов файлов
+      filetype = {},                                 -- включать подсветку для указанных типов файлов
+      filetype_exclude = {                           -- выключить подсветку для указанных типов файлов
+        'alpha',
+        'help',
+        'NvimTree',
+      },
       show_current_context = true,                   -- подсвечивать текущий контекст
       context_highlight_list = { 'CurrentContext' },
       char = '┊',
