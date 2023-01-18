@@ -20,7 +20,18 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- [[ Setup plugins ]]
-require('lazy').setup('plugins')
+require('lazy').setup('plugins', {
+  install = {
+    colorscheme = {
+      'catppuccin',
+    },
+  },
+  -- defaults = { lazy = true },
+  checker = {
+    enabled = true,
+  },
+  debug = false,
+})
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
