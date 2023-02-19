@@ -56,28 +56,55 @@ local servers = {
   --cssmodules_ls = {},     -- CSS
   dockerls = {},          -- Docker
   --golangci_lint_ls = {},  -- Go
-  gopls = {},             -- Go
+  gopls = {               -- Go
+    gopls = {
+      gofumpt = true,
+    },
+  },
   html = {},              -- HTML
   jsonls = {},            -- JSON
   --quick_lint_js = {},     -- JavaScript
   tsserver = {},          -- JavaScript, TypeScript
   ltex = {},              -- LaTeX
   --lexlab = {},            -- LaTeX
-  sumneko_lua = {         -- Lua
+  lua_ls = {              -- Lua
     Lua = {
+      diagnostics = {
+        globals = { 'vim' },
+      },
       workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
     },
   },
-  --marksman = {},          -- Markdown
+  marksman = {},          -- Markdown
   --prosemd_lsp = {},       -- Markdown
-  remark_ls = {},         -- Markdown
+  --remark_ls = {},         -- Markdown
   --zk = {},                -- Markdown
-  jedi_language_server = {}, -- Python
+  --jedi_language_server = {}, -- Python
   --pyright = {},           -- Python
   --sourcery = {},          -- Python
-  --pylsp = {},             -- Python
-  --ruff_lsp = {},          -- Python
+  pylsp = {               -- Python
+    pylsp = {
+      plugins = {
+        pyflakes = {
+          enabled = false,
+        },
+        flake8 = {
+          enabled = true,
+          maxLineLength = 120,
+        },
+        pycodestyle = {
+          --enabled = false,
+          ignore = { 'W291' },
+          maxLineLength = 120,
+        },
+        pylint = {
+          enabled = false,
+          args = {},
+        },
+      },
+    },
+  },
+  --ruff_lsp = {},            -- Python
   rust_analyzer = {},     -- Rust
   sqlls = {},             -- SQL
   --sqls = {},              -- SQL
@@ -110,6 +137,7 @@ return {
       -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+      capabilities.offsetEncoding = 'utf-8'
       
       -- Setup mason so it can manage external tooling
       require('mason').setup()
@@ -132,8 +160,64 @@ return {
       }
     end
   },
-  
-  { -- Linters & Formatters setup
+
+  -- Linters & Formatters setup
+  {
+    'jose-elias-alvarez/null-ls.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      local null_ls = require('null-ls')
+      local f = null_ls.builtins.formatting
+      local d = null_ls.builtins.diagnostics
+      local a = null_ls.builtins.code_actions
+      local c = null_ls.builtins.completion
+      null_ls.setup {
+        debug = true,
+        sources = {
+          -- completion
+          c.luasnip,
+          -- formatters
+          --f.autopep8,
+          f.beautysh,
+          --f.black,
+          f.clang_format,
+          --f.eslint_d,
+          f.gofumpt,
+          f.prettier,
+          f.rustfmt,
+          f.stylua,
+          f.taplo,
+          f.yamlfmt,
+          -- diagnostics
+          --d.clang_check,
+          --d.cppcheck,
+          d.cpplint,
+          --d.dotenv_linter,
+          d.eslint_d,
+          --d.flake8,
+          d.golangci_lint,
+          d.jsonlint,
+          --d.luacheck,
+          --d.pylama,
+          d.pylint.with {
+            diagnostic_config = { underline = false, virtual_text = false, signs = false },
+            method = null_ls.methods.DIAGNOSTICS_ON_SAVE,
+          },
+          --d.ruff.with { extra_args = { '--line-length=120' } },
+          d.selene,
+          d.shellcheck.with { extra_args = { 'disable', 'SC2086' } },
+          --d.todo_comments,
+          d.vale,
+          d.yamllint,
+          -- code actions
+          a.gitsigns,
+        },
+      }
+    end
+  },
+  {
     'jayp0521/mason-null-ls.nvim',
     dependencies = {
       'williamboman/mason.nvim',
@@ -142,24 +226,10 @@ return {
     config = function()
       require('mason').setup()
       require('mason-null-ls').setup {
-        ensure_installed = {
-          'cpplint',
-          'golangci_lint',
-          'html_lint',
-          'prettier',
-          'fixjson',
-          'luacheck',
-          'vale',
-          'flake8',
-          'shellcheck',
-          'taplo',
-          'yamllint',
-        },
-        automatic_installation = false,
-        automatic_setup = true,
+        ensure_installed = nil,
+        automatic_installation = true,
+        automatic_setup = false,
       }
-      require('null-ls').setup()
-      require('mason-null-ls').setup_handlers()
     end
   },
 }
