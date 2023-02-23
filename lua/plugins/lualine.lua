@@ -42,6 +42,7 @@ end
 
 return {
   'nvim-lualine/lualine.nvim', -- Fancier statusline
+  --event = 'VeryLazy',
   dependencies = { 'nvim-tree/nvim-web-devicons', opt = true },
   config = function()
     -- Set lualine as statusline
@@ -49,6 +50,7 @@ return {
     require('lualine').setup {
       options = {
         theme = 'auto',
+        disabled_filetypes = { 'neo-tree', 'nvimtree', 'alpha' },
       },
       sections = {
         lualine_c = {
@@ -56,6 +58,7 @@ return {
         },
         lualine_x = {
           { lsp },
+          -- { require('lazy.status').updates, cond = require('lazy.status').has_updates }, -- update plugins status
           { 'filetype' },
         },
       },
