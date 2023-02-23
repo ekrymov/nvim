@@ -14,12 +14,13 @@ return {
       filetype_exclude = {                           -- выключить подсветку для указанных типов файлов
         'alpha',
         'help',
-        'NvimTree',
+        'neo-tree',
       },
       show_current_context = true,                   -- подсвечивать текущий контекст
       context_highlight_list = { 'CurrentContext' },
       char = '┊',
       show_trailing_blankline_indent = false,
+      use_treesitter = true,
       use_treesitter_scope = true,
     }
   end
