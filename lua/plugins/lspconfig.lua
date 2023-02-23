@@ -1,46 +1,215 @@
 -- LSP settings.
 -- This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
   -- NOTE: Remember that lua is a real programming language, and as such it is possible
   -- to define small helper and utility functions so you don't have to repeat yourself
   -- many times.
   --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
-  local nmap = function(keys, func, desc)
-    if desc then
-      desc = 'LSP: ' .. desc
-    end
 
-    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+  local tbl_contains = vim.tbl_contains
+  local tbl_isempty = vim.tbl_isempty
+  local capabilities = client.server_capabilities
+  local is_available = require('utils').is_available
+  local default_tbl = require('utils').default_tbl
+
+  local formatting = { -- TODO: move to config
+    format_on_save = {
+      enabled = true,
+      allow_filetypes = {},
+      ignore_filetypes = {},
+    },
+    disabled = {},
+    timeout_ms = 1000,
+  }
+
+  local format_opts = vim.deepcopy(formatting)
+  format_opts.disabled = nil
+  format_opts.format_on_save = nil
+  format_opts.filter = function(client)
+    local filter = formatting.filter
+    local disabled = formatting.disabled or {}
+    return not (vim.tbl_contains(disabled, client.name) or (type(filter) == 'function' and not filter(client)))
+  end
+  
+  local lsp_mappings = {
+    n = {
+      ['<leader>ld'] = { function() vim.diagnostic.open_float() end, desc = 'Hover diagnostics' },
+      ['[d'] = { function() vim.diagnostic.goto_prev() end, desc = 'Previous diagnostic' },
+      [']d'] = { function() vim.diagnostic.goto_next() end, desc = 'Next diagnostic' },
+      ['gl'] = { function() vim.diagnostic.open_float() end, desc = 'Hover diagnostics' },
+    },
+    v = {},
+  }
+
+  if is_available('mason-lspconfig.nvim') then
+    lsp_mappings.n['<leader>li'] = { '<cmd>LspInfo<cr>', desc = 'LSP information' }
+  end
+  
+  if is_available('null-ls.nvim') then
+    lsp_mappings.n['<leader>lI'] = { '<cmd>NullLsInfo<cr>', desc = 'Null-ls information' }
   end
 
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  if capabilities.codeActionProvider then
+    lsp_mappings.n['<leader>la'] = { function() vim.lsp.buf.code_action() end, desc = 'LSP code action' }
+    lsp_mappings.v['<leader>la'] = lsp_mappings.n['<leader>la']
+  end
 
-  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+  if capabilities.codeLensProvider then
+    lsp_mappings.n['<leader>ll'] = { function() vim.lsp.codelens.refresh() end, desc = 'LSP codelens refresh' }
+    lsp_mappings.n['<leader>lL'] = { function() vim.lsp.codelens.run() end, desc = 'LSP codelens run' }
+  end
 
-  -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  if capabilities.declarationProvider then
+    lsp_mappings.n['gD'] = { function() vim.lsp.buf.declaration() end, desc = 'Declaration of current symbol' }
+  end
 
+  if capabilities.definitionProvider then
+    lsp_mappings.n['gd'] = {
+      function() vim.lsp.buf.definition() end, desc = 'Show the definition of current symbol'
+    }
+  end
+
+  if capabilities.documentFormattingProvider and not tbl_contains(formatting.disabled, client.name) then
+    lsp_mappings.n['<leader>lf'] = { function() vim.lsp.buf.format(format_opts) end, desc = 'Format buffer' }
+    lsp_mappings.v['<leader>lf'] = lsp_mappings.n['<leader>lf']
+
+    -- Create a command `:Format` local to the LSP buffer
+    vim.api.nvim_buf_create_user_command(
+      bufnr,
+      'Format',
+      function() vim.lsp.buf.format(format_opts) end,
+      { desc = 'Format file with LSP' }
+    )
+    local autoformat = formatting.format_on_save
+    local filetype = vim.api.nvim_buf_get_option(bufnr, 'filetype')
+    if
+      autoformat.enabled
+      and (tbl_isempty(autoformat.allow_filetypes or {}) or tbl_contains(autoformat.allow_filetypes, filetype))
+      and (tbl_isempty(autoformat.ignore_filetypes or {}) or tbl_contains(autoformat.ignore_filetypes, filetype))
+    then
+      local autocmd_group = 'auto_format_' .. bufnr
+      vim.api.nvim_create_augroup(autocmd_group, { clear = true })
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        group = autocmd_group,
+        buffer = bufnr,
+        desc = 'Auto format buffer ' .. bufnr .. ' before save',
+        callback = function()
+          if vim.g.autoformat_enabled then
+            vim.lsp.buf.format(default_tbl({ bufnr = bufnr }, format_opts))
+          end
+        end,
+      })
+      lsp_mappings.n['<leader>uf'] = {
+        function() require('utils.ui').toggle_autoformat() end,
+        desc = 'Toggle autoformatting',
+      }
+    end
+  end
+
+  if capabilities.documentHighlightProvider then
+    local highlight_name = vim.fn.printf('lsp_document_highlight_%d', bufnr)
+    vim.api.nvim_create_augroup(highlight_name, {})
+    vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+      group = highlight_name,
+      buffer = bufnr,
+      callback = function() vim.lsp.buf.document_highlight() end,
+    })
+    vim.api.nvim_create_autocmd('CursorMoved', {
+      group = highlight_name,
+      buffer = bufnr,
+      callback = function() vim.lsp.buf.clear_references() end,
+    })
+  end
+
+  if capabilities.hoverProvider then
+    lsp_mappings.n['K'] = { function() vim.lsp.buf.hover() end, desc = 'Hover symbol details' }
+  end
+
+  if capabilities.implementationProvider then
+    lsp_mappings.n['gI'] = {
+      function() vim.lsp.buf.implementation() end, desc = 'Implementation of current symbol',
+    }
+  end
+
+  if capabilities.referencesProvider then
+    lsp_mappings.n['gr'] = { function() vim.lsp.buf.references() end, desc = 'References of current symbol' }
+    lsp_mappings.n['<leader>lR'] = { function() vim.lsp.buf.references() end, desc = 'Search references' }
+  end
+
+  if capabilities.renameProvider then
+    lsp_mappings.n['<leader>lr'] = {
+      function() vim.lsp.buf.rename() end, desc = 'Rename current symbol',
+    }
+  end
+
+  if capabilities.signatureHelpProvider then
+    lsp_mappings.n['<leader>lh'] = { function() vim.lsp.buf.signature_help() end, desc = 'Signature help' }
+  end
+
+  if capabilities.typeDefinitionProvider then
+    lsp_mappings.n['gT'] = {
+      function() vim.lsp.buf.type_definition() end, desc = 'Definition of current type',
+    }
+  end
+
+  if capabilities.workspaceSymbolProvider then
+    lsp_mappings.n['<leader>lG'] = {
+      function() vim.lsp.buf.workspace_symbol() end, desc = 'Search workspace symbols',
+    }
+  end
+
+  if capabilities.documentSymbolProvider then
+    lsp_mappings.n['<leader>ls'] = {
+      function() vim.lsp.buf.document_symbol() end, desc = 'Document symbols',
+    }
+  end
+
+  if is_available('telescope.nvim') then
+    local tb = require('telescope.builtin')
+    if lsp_mappings.n.gd then lsp_mappings.n.gd[1] = function() tb.lsp_definitions() end end
+    if lsp_mappings.n.gI then lsp_mappings.n.gI[1] = function() tb.lsp_implementations() end end
+    if lsp_mappings.n.gr then lsp_mappings.n.gr[1] = function() tb.lsp_references() end end
+    if lsp_mappings.n['<leader>lR'] then
+      lsp_mappings.n['<leader>lR'][1] = function() tb.lsp_references() end
+    end
+    if lsp_mappings.n.gT then lsp_mappings.n.gT[1] = function() tb.lsp_type_definitions() end end
+    if lsp_mappings.n['<leader>lG'] then
+      lsp_mappings.n['<leader>lG'][1] = function() tb.lsp_workspace_symbols() end
+    end
+    if lsp_mappings.n['<leader>ls'] then
+      lsp_mappings.n['<leader>ls'][1] = function()
+        local aerial_avail, _ = pcall(require, 'aerial')
+        if aerial_avail then
+          require('telescope').extensions.aerial.aerial()
+        else
+          tb.lsp_document_symbols()
+        end
+      end
+    end
+    if lsp_mappings.n['<leader>lG'] then
+      lsp_mappings.n['<leader>lG'][1] = function() tb.lsp_dynamic_workspace_symbols() end
+    end
+    lsp_mappings.n['<leader>lD'] = { function() tb.diagnostics() end, desc = 'Search diagnostics' }
+  end
+  
   -- Lesser used LSP functionality
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  nmap('<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
-
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-    vim.lsp.buf.format()
-  end, { desc = 'Format current buffer with LSP' })
+  lsp_mappings.n['<leader>lW'] = {
+    function() vim.lsp.buf.add_workspace_folder() end,
+    desc = 'Add workspace folder',
+  }
+  lsp_mappings.n['<leader>lR'] = {
+    function() vim.lsp.buf.remove_workspace_folder() end,
+    desc =  'Remove workspace folder',
+  }
+  lsp_mappings.n['<leader>lw'] = {
+    function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end,
+    desc = 'List workspace folders',
+  }
+  
+  require('utils').set_mappings(lsp_mappings, { buffer = bufnr })
+  if not vim.tbl_isempty(lsp_mappings.v) then
+    require('utils').which_key_register({ v = { ['<leader>'] = { l = { name = 'LSP' } } } }, { buffer = bufnr })
+  end
 end
 
 -- Enable the following language servers
