@@ -5,14 +5,14 @@ local M = {
   dependencies = { 'nvim-lua/plenary.nvim' },
   keys = {
     {
-      '<leader>]',
+      ']t',
       function()
         require('todo-comments').jump_next()  
       end,
       desc = 'Next todo comment',
     },
     {
-      '<leader>[',
+      '[t',
       function()
         require('todo-comments').jump_prev()
       end,
@@ -24,9 +24,6 @@ local M = {
       multiline = false,
     },
   },
-  config = function(_, opts)
-    require('todo-comments').setup(opts)
-  end
 }
 
 return M
