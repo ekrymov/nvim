@@ -122,7 +122,7 @@ function M.toggleterm_cmd(opts)
 end
 
 
---require('utils.lsp')
+require('utils.lsp')
 --require('utils.cmp')
 
 return M
