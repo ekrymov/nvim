@@ -43,6 +43,13 @@ return {
       alpha_button("LDR f m", "  Bookmarks  "),
       alpha_button("LDR S l", "  Last Session  "),
     }
-    require('alpha').setup(dashboard.config)
+    
+    local startify = require('alpha.themes.startify')
+    startify.section.top_buttons.val = {}
+    startify.section.bottom_buttons.val = {
+      startify.button( "q", "  Quit NVIM" , "<cmd>qa<cr>"),
+    }
+
+    require('alpha').setup(startify.config) -- startify.config or dashboard.config
   end
 }
