@@ -1,7 +1,7 @@
 return {
   { -- Catppiccin theme
     'catppuccin/nvim',
-    enabled = false,
+    enabled = true,
     lazy = false,
     priority = 1000,
     name = 'catppuccin',
@@ -13,7 +13,7 @@ return {
 
   { -- Tokyonight theme
     'folke/tokyonight.nvim',
-    enabled = true,
+    enabled = false,
     lazy = false,
     priority = 1000,
     config = function()
