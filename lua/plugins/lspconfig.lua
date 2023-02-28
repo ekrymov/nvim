@@ -106,18 +106,21 @@ local on_attach = function(client, bufnr)
     end
   end
 
-  if capabilities.documentHighlightProvider then
+  if capabilities.documentHighlightProvider and false then -- FIXME: отключено, т.к. не снимается выделение в INSERT mode
     local highlight_name = vim.fn.printf('lsp_document_highlight_%d', bufnr)
-    vim.api.nvim_create_augroup(highlight_name, {})
+    vim.api.nvim_create_augroup(highlight_name, { clear = true })
+    vim.api.nvim_clear_autocmds { group = highlight_name, buffer = bufnr }
     vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
       group = highlight_name,
       buffer = bufnr,
       callback = function() vim.lsp.buf.document_highlight() end,
+      desc = 'Document Highlight',
     })
     vim.api.nvim_create_autocmd('CursorMoved', {
       group = highlight_name,
       buffer = bufnr,
       callback = function() vim.lsp.buf.clear_references() end,
+      desc = 'Clear All the References',
     })
   end
 
