@@ -13,21 +13,12 @@ local maps = { i = {}, n = {}, v = {}, t = {} }
 map('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 map('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
--- <F5> различные вариации нумераций строк
-map('n', '<F5>', ':exec &nu==&rnu? "se nu!" : "se rnu!"<CR>', { noremap = true, silent = true })
-
 -- Back to normal mode from <jk>
 map('i', 'jk', '<Esc>', { noremap = true })
 
 -- Move lines
 map('n', '<C-M-j>', ':m .+1<CR>==', { desc = 'Move down' })
 map('n', '<C-M-k>', ':m .-2<CR>==', { desc = 'Move up' })
-
--- Diagnostic keymaps
---map('n', '[d', vim.diagnostic.goto_prev)
---map('n', ']d', vim.diagnostic.goto_next)
---map('n', '<leader>e', vim.diagnostic.open_float)
---map('n', '<leader>q', vim.diagnostic.setloclist)
 
 
 
