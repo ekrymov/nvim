@@ -3,9 +3,9 @@ local M = {}
 local map = vim.keymap.set
 
 M.git_colors = {
-    GitAdd = "#A1C281",
-    GitChange = "#74ADEA",
-    GitDelete = "#FE747A",
+  GitAdd = "#A1C281",
+  GitChange = "#74ADEA",
+  GitDelete = "#FE747A",
 }
 
 M.treesitter_ensure_installed = {
