@@ -5,7 +5,16 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
---vim.g.ui_notifications_enabled = true
+vim.opt.shortmess:append { s = true, I = true } -- disable startup message
+vim.o.scrolloff = 8 -- Number of lines to keep above and below the cursor
+vim.wo.relativenumber = false -- Disable relative numberline
+vim.wo.wrap = false -- Disable wrapping of lines longer than the width of window
+vim.g.autoformat_enabled = true -- enable or disableauto formatting at start (lsp.formatting.format_on_save must be enabled)
+vim.g.autopairs_enabled = true -- enable autopairs at start
+vim.g.cmp_enabled = true -- enable completion at start
+vim.g.diagnostics_enabled = true -- enable diagnostics at start
+vim.g.status_diagnostics_enabled = true -- enable diagnostics at statusline
+vim.g.ui_notifications_enabled = true -- disable notifications when toggling UI elements
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
