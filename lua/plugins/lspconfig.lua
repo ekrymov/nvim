@@ -24,7 +24,7 @@ local on_attach = function(client, bufnr)
 
   local format_opts = vim.deepcopy(formatting)
   format_opts.disabled = nil
-  format_opts.format_on_save = nil
+  format_opts.format_on_save = true
   format_opts.filter = function(client)
     local filter = formatting.filter
     local disabled = formatting.disabled or {}
