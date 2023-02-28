@@ -23,7 +23,9 @@ local M = {
     },
     autopairs = { enable = true },
     autotag = { enable = true },
-    indent = { enable = true, disable = { 'python ' } },
+    indent = { enable = true, disable = {
+      -- 'python ',
+    } },
     sync_install = true,
     ignore_install = {}, -- List of parsers to ignore installation
     refactor = {
@@ -80,10 +82,10 @@ local M = {
       swap = {
         enable = true,
         swap_next = {
-          ['<leader>a'] = '@parameter.inner',
+          [']a'] = '@parameter.inner',
         },
         swap_previous = {
-          ['<leader>A'] = '@parameter.inner',
+          ['[a'] = '@parameter.inner',
         },
       },
     },
