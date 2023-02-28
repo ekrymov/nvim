@@ -1,6 +1,7 @@
 -- Automatically highlighting other uses of the word under the cursor
 local M = {
   'RRethy/vim-illuminate',
+  enabled = true,
   event = 'BufRead',
   opts = {
     delay = 200,
