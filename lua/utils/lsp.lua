@@ -88,4 +88,29 @@ function M.toggle_diagnostics()
     end
 end
 
+M.diagnostics = {
+    off = {
+        underline = false,
+        virtual_text = false,
+        signs = false,
+        update_in_insert = false,
+    },
+    on = {
+        underline = true,
+        virtual_text = true,
+        signs = { active = signs },
+        update_in_insert = true,
+        severity_sort = true,
+        float = {
+            focused = false,
+            style = 'minimal',
+            border = 'rounded',
+            source = 'always',
+            header = '',
+            prefix = '',
+        },
+    },
+}
+vim.diagnostic.config(M.diagnostics[vim.g.diagnostics_enabled and 'on' or 'off'])
+
 return M
