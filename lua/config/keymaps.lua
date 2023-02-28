@@ -38,6 +38,23 @@ maps.n['<leader>w'] = { '<cmd>w<cr>', desc = 'Save'}
 maps.n['<leader>q'] = { '<cmd>q<cr>', desc = 'Quit'}
 maps.n['<leader>fn'] = { '<cmd>enew<cr>', desc = 'New File'}
 
+-- Manage buffers
+if is_available('barbar.nvim') then
+  maps.n['<leader>c'] = { '<cmd>BufferClose<cr>', desc = 'Close buffer' }
+  maps.n['<leader>C'] = { '<cmd>BufferClose!<cr>', desc = 'Force close buffer' }
+  maps.n['<S-l>'] = { '<cmd>BufferNext<cr>', desc = 'Next buffer' }
+  maps.n['<S-h>'] = { '<cmd>BufferPrevious<cr>', desc = 'Previous buffer' }
+  maps.n['>b'] = { '<cmd>BufferMoveNext<cr>', desc = 'Move buffer tab right' }
+  maps.n['<b'] = { '<cmd>BufferMovePrevious<cr>', desc = 'Move buffer tab left' }
+  maps.n['<leader>bn'] = { '<cmd>BufferPick<cr>', desc = 'Pick buffers' }
+  maps.n['<leader>bp'] = { '<cmd>BufferPin<cr>', desc = 'Pin/unpin buffer' }
+else
+  maps.n['<leader>c'] = { '<cmd>bdelete<cr>', desc = 'Close buffer' }
+  maps.n['<leader>C'] = { '<cmd>bdelete!<cr>', desc = 'Force close buffer' }
+  maps.n[']b'] = { '<cmd>bnext<cr>', desc = 'Next buffer' }
+  maps.n['[b'] = { '<cmd>bprevious<cr>', desc = 'Previous buffer' }
+end
+
 -- Lazy.nvim
 local lazy = require('lazy')
 maps.n['<leader>ph'] = { function() lazy.health() end, desc = 'Lazy Checkhealth' }
