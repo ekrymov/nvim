@@ -203,7 +203,11 @@ if is_available('nvim-cmp') then
 end
 
 maps.n['<leader>ud'] = {
-  function() require('utils.lsp').toggle_diagnostics() end, desc = 'Toggle diagnostics'
+  function() require('utils.ui').toggle_diagnostics() end, desc = 'Toggle diagnostics'
 }
+
+maps.n['<leader>un'] = { function() ui.change_number() end, desc = 'Change line numbering' }
+maps.n['<leader>uw'] = { function() ui.toggle_wrap() end, desc = 'Toggle wrap' }
+maps.n['<leader>up'] = { function() ui.toggle_paste() end, desc = 'Toggle paste mode' }
 
 set_mappings(maps)
