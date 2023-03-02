@@ -15,6 +15,11 @@ M = {
           },
         },
       },
+      ['core.keybinds'] = {
+        config = {
+          default_keybinds = false,
+        },
+      },
     },
   },
 }
